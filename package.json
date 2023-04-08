@@ -20,5 +20,8 @@
   "repository": {
     "type": "git",
     "url": "git@github.com:CoderichLLC/nodejs-util.git"
+  },
+  "dependencies": {
+    "lodash.set": "4.3.2"
   }
 }
