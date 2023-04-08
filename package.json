@@ -1,0 +1,24 @@
+{
+  "name": "@coderich/util",
+  "main": "src/index.js",
+  "version": "0.0.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "src",
+    "!__mocks__"
+  ],
+  "scripts": {
+    "test": "jest --config=jest.config.js",
+    "lint": "eslint --config=.eslintrc ./",
+    "dev": "coderich-dev"
+  },
+  "devDependencies": {
+    "@coderich/dev": "0.0.13"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:CoderichLLC/nodejs-util.git"
+  }
+}
