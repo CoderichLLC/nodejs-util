@@ -1,4 +1,5 @@
 const ChildProcess = require('child_process');
+const ObjectId = require('bson-objectid');
 const set = require('lodash.set');
 
 exports.shellCommand = (cmd, ...args) => {
@@ -12,7 +13,7 @@ exports.flatten = (mixed, spread = true) => {
     const type = Object.prototype.toString.call(data);
     const types = spread ? ['[object Object]', '[object Array]'] : ['[object Object]'];
 
-    if (types.includes(type)) {
+    if (types.includes(type) && !ObjectId.isValid(data)) {
       return Object.entries(data).reduce((o, [key, value]) => {
         const $key = key.split('.').length > 1 ? `['${key}']` : key;
         return flatten(value, o, path.concat($key));

@@ -15,6 +15,7 @@
     "dev": "coderich-dev"
   },
   "dependencies": {
+    "bson-objectid": "2.0.4",
     "lodash.set": "4.3.2"
   },
   "devDependencies": {
