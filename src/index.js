@@ -7,9 +7,12 @@ exports.shellCommand = (cmd, ...args) => {
   return (stderr || stdout).trim();
 };
 
-exports.flatten = (mixed) => {
+exports.flatten = (mixed, spread = true) => {
   return exports.map(mixed, el => (function flatten(data, obj = {}, path = []) {
-    if (['[object Object]', '[object Array]'].includes(Object.prototype.toString.call(data))) {
+    const type = Object.prototype.toString.call(data);
+    const types = spread ? ['[object Object]', '[object Array]'] : ['[object Object]'];
+
+    if (types.includes(type)) {
       return Object.entries(data).reduce((o, [key, value]) => {
         const $key = key.split('.').length > 1 ? `['${key}']` : key;
         return flatten(value, o, path.concat($key));
@@ -22,7 +25,7 @@ exports.flatten = (mixed) => {
     }
 
     return data;
-  }(mixed)));
+  }(el)));
 };
 
 exports.unflatten = (data) => {
