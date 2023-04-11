@@ -44,3 +44,13 @@ exports.map = (mixed, fn) => {
   const results = arr.map((...args) => fn(...args));
   return isArray ? results : results[0];
 };
+
+exports.promiseChain = (promiseThunks) => {
+  return promiseThunks.reduce((chain, promiseThunk) => {
+    return chain.then((chainResult) => {
+      return promiseThunk(chainResult).then((promiseResult) => {
+        return [...chainResult, promiseResult];
+      });
+    });
+  }, Promise.resolve([]));
+};
