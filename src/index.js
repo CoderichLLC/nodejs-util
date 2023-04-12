@@ -29,9 +29,11 @@ exports.flatten = (mixed, spread = true) => {
   }(el)));
 };
 
-exports.unflatten = (data) => {
+exports.unflatten = (data, spread = true) => {
   return exports.map(data, (el) => {
-    return typeof data === 'object' ? Object.entries(el).reduce((prev, [key, value]) => {
+    const type = Object.prototype.toString.call(data);
+    const types = spread ? ['[object Object]', '[object Array]'] : ['[object Object]'];
+    return types.includes(type) ? Object.entries(el).reduce((prev, [key, value]) => {
       return set(prev, key, value);
     }, {}) : el;
   });
