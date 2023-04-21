@@ -2,6 +2,12 @@ const ChildProcess = require('child_process');
 const ObjectId = require('bson-objectid');
 const set = require('lodash.set');
 
+exports.uvl = (...values) => values.reduce((prev, value) => (prev === undefined ? value : prev), undefined);
+exports.nvl = (...values) => values.reduce((prev, value) => (prev === null ? value : prev), null);
+exports.push = (arr, it) => arr[arr.push(it) - 1];
+exports.filterBy = (arr, fn) => arr.filter((b, index, self) => index === self.findIndex(a => fn(a, b)));
+exports.ensureArray = a => (Array.isArray(a) ? a : [a].filter(el => el !== undefined));
+
 exports.shellCommand = (cmd, ...args) => {
   const { status = 0, stdout = '', stderr = '' } = ChildProcess.spawnSync(cmd, args.flat(), { shell: true, encoding: 'utf8' });
   if (status !== 0) throw new Error(stderr);
@@ -47,12 +53,21 @@ exports.map = (mixed, fn) => {
   return isArray ? results : results[0];
 };
 
-exports.promiseChain = (promiseThunks) => {
+exports.mapPromise = (mixed, fn) => {
+  const map = exports.map(mixed, fn);
+  return Array.isArray(map) ? Promise.all(map) : Promise.resolve(map);
+};
+
+exports.promiseChain = (promiseThunks, startValue) => {
   return promiseThunks.reduce((chain, promiseThunk) => {
     return chain.then((chainResult) => {
       return promiseThunk(chainResult).then((promiseResult) => {
         return [...chainResult, promiseResult];
       });
     });
-  }, Promise.resolve([]));
+  }, Promise.resolve([startValue]));
+};
+
+exports.pipeline = (thunks, startValue) => {
+
 };
