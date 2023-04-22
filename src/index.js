@@ -7,6 +7,7 @@ exports.nvl = (...values) => values.reduce((prev, value) => (prev === null ? val
 exports.push = (arr, it) => arr[arr.push(it) - 1];
 exports.filterBy = (arr, fn) => arr.filter((b, index, self) => index === self.findIndex(a => fn(a, b)));
 exports.ensureArray = a => (Array.isArray(a) ? a : [a].filter(el => el !== undefined));
+exports.timeout = ms => new Promise((resolve) => { setTimeout(resolve, ms); });
 
 exports.shellCommand = (cmd, ...args) => {
   const { status = 0, stdout = '', stderr = '' } = ChildProcess.spawnSync(cmd, args.flat(), { shell: true, encoding: 'utf8' });
@@ -58,16 +59,23 @@ exports.mapPromise = (mixed, fn) => {
   return Array.isArray(map) ? Promise.all(map) : Promise.resolve(map);
 };
 
-exports.promiseChain = (promiseThunks, startValue) => {
-  return promiseThunks.reduce((chain, promiseThunk) => {
-    return chain.then((chainResult) => {
-      return promiseThunk(chainResult).then((promiseResult) => {
-        return [...chainResult, promiseResult];
+exports.promiseChain = (thunks) => {
+  return thunks.reduce((promise, thunk) => {
+    return promise.then((values) => {
+      return Promise.resolve(thunk(values)).then((result) => {
+        return [...values, result];
       });
     });
-  }, Promise.resolve([startValue]));
+  }, Promise.resolve([]));
 };
 
 exports.pipeline = (thunks, startValue) => {
+  let $value = startValue;
 
+  return thunks.reduce((promise, thunk) => {
+    return promise.then((value) => {
+      if (value !== undefined) $value = value;
+      return Promise.resolve(thunk($value));
+    });
+  }, Promise.resolve(startValue));
 };

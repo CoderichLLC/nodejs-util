@@ -26,4 +26,31 @@ describe('utils', () => {
     expect(Util.unflatten({ 'a.b.c': 'd' })).toEqual({ a: { b: { c: 'd' } } });
     expect(Util.unflatten({ a: { b: { c: 'd' } } })).toEqual({ a: { b: { c: 'd' } } });
   });
+
+  test('promiseChain', async () => {
+    expect(await Util.promiseChain([
+      () => Util.timeout(300).then(() => 'hello'),
+      () => Util.timeout(100).then(() => 'world'),
+    ])).toEqual(['hello', 'world']);
+  });
+
+  test('pipeline', async () => {
+    expect(await Util.pipeline([
+      value => Util.timeout(300).then(() => value * 10),
+      () => undefined,
+      value => Util.timeout(100).then(() => value + 3),
+    ], 10)).toEqual(103);
+
+    expect(await Util.pipeline([
+      value => Util.timeout(300).then(() => value * 10),
+      () => 30,
+      value => Util.timeout(100).then(() => value + 3),
+    ])).toEqual(33);
+
+    expect(await Util.pipeline([
+      () => 30,
+      value => Util.timeout(300).then(() => value * 10),
+      value => Util.timeout(100).then(() => value + 3),
+    ])).toEqual(303);
+  });
 });
