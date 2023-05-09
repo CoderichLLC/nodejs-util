@@ -11,20 +11,25 @@ describe('utils', () => {
     expect(Util.flatten([])).toEqual([]);
     expect(Util.flatten({})).toEqual({});
     expect(Util.flatten(['a', 'b', 'c'])).toEqual(['a', 'b', 'c']);
-    expect(Util.flatten(['a', 'b', 'c'], false)).toEqual(['a', 'b', 'c']);
+    expect(Util.flatten(['a', 'b', 'c'], { safe: true })).toEqual(['a', 'b', 'c']);
     expect(Util.flatten({ a: { b: 'c' } })).toEqual({ 'a.b': 'c' });
-    expect(Util.flatten({ a: { b: 1, 'nested.attribute': 2 } })).toEqual({ 'a.b': 1, "a.['nested.attribute']": 2 });
+    expect(Util.flatten({ a: { b: 1, 'nested.attribute': 2 } }, { strict: true })).toEqual({ 'a.b': 1, "a.['nested.attribute']": 2 });
     expect(Util.flatten({ a: { b: 1, c: [4, 5, 6] } })).toEqual({ 'a.b': 1, 'a.c.0': 4, 'a.c.1': 5, 'a.c.2': 6 });
-    expect(Util.flatten({ a: { b: 1, c: [4, 5, 6] } }, false)).toEqual({ 'a.b': 1, 'a.c': [4, 5, 6] });
+    expect(Util.flatten({ a: { b: 1, c: [4, 5, 6] } }, { safe: true })).toEqual({ 'a.b': 1, 'a.c': [4, 5, 6] });
   });
 
   test('unflatten', () => {
     const oid = new ObjectId();
     expect(Util.unflatten(oid)).toEqual(oid);
-    expect(Util.unflatten(oid, false)).toEqual(oid);
-    expect(Util.unflatten(['a', 'b', 'c'], false)).toEqual(['a', 'b', 'c']);
+    expect(Util.unflatten(oid, { safe: true })).toEqual(oid);
+    expect(Util.unflatten(['a', 'b', 'c'], { safe: true })).toEqual(['a', 'b', 'c']);
     expect(Util.unflatten({ 'a.b.c': 'd' })).toEqual({ a: { b: { c: 'd' } } });
     expect(Util.unflatten({ a: { b: { c: 'd' } } })).toEqual({ a: { b: { c: 'd' } } });
+  });
+
+  test('preserve nested keys', () => {
+    const obj = { a: { b: 1, 'nested.attribute': 2 } };
+    expect(Util.unflatten(Util.flatten(obj, { strict: true }))).toEqual(obj);
   });
 
   test('promiseChain', async () => {

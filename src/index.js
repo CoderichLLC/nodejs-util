@@ -15,14 +15,14 @@ exports.shellCommand = (cmd, ...args) => {
   return (stderr || stdout).trim();
 };
 
-exports.flatten = (mixed, spread = true) => {
+exports.flatten = (mixed, options = {}) => {
   return exports.map(mixed, el => (function flatten(data, obj = {}, path = []) {
     const type = Object.prototype.toString.call(data);
-    const types = spread ? ['[object Object]', '[object Array]'] : ['[object Object]'];
+    const types = options.safe ? ['[object Object]'] : ['[object Object]', '[object Array]'];
 
     if (types.includes(type) && !ObjectId.isValid(data)) {
       return Object.entries(data).reduce((o, [key, value]) => {
-        const $key = key.split('.').length > 1 ? `['${key}']` : key;
+        const $key = options.strict && key.split('.').length > 1 ? `['${key}']` : key;
         return flatten(value, o, path.concat($key));
       }, obj);
     }
@@ -36,10 +36,10 @@ exports.flatten = (mixed, spread = true) => {
   }(el)));
 };
 
-exports.unflatten = (data, spread = true) => {
+exports.unflatten = (data, options = {}) => {
   return exports.map(data, (el) => {
     const type = Object.prototype.toString.call(data);
-    const types = spread ? ['[object Object]', '[object Array]'] : ['[object Object]'];
+    const types = options.safe ? ['[object Object]'] : ['[object Object]', '[object Array]'];
     return types.includes(type) ? Object.entries(el).reduce((prev, [key, value]) => {
       return set(prev, key, value);
     }, {}) : el;
