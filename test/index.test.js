@@ -32,6 +32,13 @@ describe('utils', () => {
     expect(Util.unflatten(Util.flatten(obj, { strict: true }))).toEqual(obj);
   });
 
+  test('depth 1', () => {
+    const obj = { a: { b: { bb: 'bb' }, c: { cc: 'cc' } } };
+    const flat = Util.flatten(obj, { depth: 1 });
+    expect(flat).toEqual({ 'a.b': { bb: 'bb' }, 'a.c': { cc: 'cc' } });
+    expect(Util.unflatten(flat)).toEqual(obj);
+  });
+
   test('promiseChain', async () => {
     expect(await Util.promiseChain([
       () => Util.timeout(300).then(() => 'hello'),

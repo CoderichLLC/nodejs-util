@@ -16,14 +16,16 @@ exports.shellCommand = (cmd, ...args) => {
 };
 
 exports.flatten = (mixed, options = {}) => {
-  return exports.map(mixed, el => (function flatten(data, obj = {}, path = []) {
+  const maxDepth = options.depth ?? Infinity;
+
+  return exports.map(mixed, el => (function flatten(data, obj = {}, path = [], depth = 0) {
     const type = Object.prototype.toString.call(data);
     const types = options.safe ? ['[object Object]'] : ['[object Object]', '[object Array]'];
 
-    if (types.includes(type) && !ObjectId.isValid(data)) {
+    if (depth <= maxDepth && types.includes(type) && !ObjectId.isValid(data)) {
       return Object.entries(data).reduce((o, [key, value]) => {
         const $key = options.strict && key.split('.').length > 1 ? `['${key}']` : key;
-        return flatten(value, o, path.concat($key));
+        return flatten(value, o, path.concat($key), depth + 1);
       }, obj);
     }
 
