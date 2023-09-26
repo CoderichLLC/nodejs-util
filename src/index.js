@@ -1,7 +1,9 @@
 const ChildProcess = require('child_process');
 const ObjectId = require('bson-objectid');
 const set = require('lodash.set');
+const isEqual = require('lodash.isequal');
 
+exports.isEqual = isEqual;
 exports.uvl = (...values) => values.reduce((prev, value) => (prev === undefined ? value : prev), undefined);
 exports.nvl = (...values) => values.reduce((prev, value) => (prev === null ? value : prev), null);
 exports.push = (arr, it) => arr[arr.push(it) - 1];
@@ -56,6 +58,27 @@ exports.unflatten = (data, options = {}) => {
       return set(prev, key, value);
     }, {}) : el;
   });
+};
+
+exports.changeset = (lhs, rhs) => {
+  lhs = lhs ?? {}; rhs = rhs ?? {};
+  const [$lhs, $rhs] = [exports.flatten(lhs), exports.flatten(rhs)];
+  const changeset = { added: {}, updated: {}, deleted: {} };
+
+  // Updated + Deleted
+  Object.entries($lhs).forEach(([key, value]) => {
+    if (Object.prototype.hasOwnProperty.call($rhs, key)) {
+      const $value = $rhs[key];
+      if (!exports.isEqual(value, $value)) changeset.updated[key] = $value;
+      delete $rhs[key];
+    } else {
+      changeset.deleted[key] = value;
+    }
+  });
+
+  // Added
+  changeset.added = $rhs;
+  return changeset;
 };
 
 exports.map = (mixed, fn) => {
