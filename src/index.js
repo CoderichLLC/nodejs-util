@@ -3,7 +3,10 @@ const ObjectId = require('bson-objectid');
 const set = require('lodash.set');
 const isEqual = require('lodash.isequal');
 
+exports.set = set;
 exports.isEqual = isEqual;
+exports.ObjectId = ObjectId;
+
 exports.uvl = (...values) => values.reduce((prev, value) => (prev === undefined ? value : prev), undefined);
 exports.nvl = (...values) => values.reduce((prev, value) => (prev === null ? value : prev), null);
 exports.push = (arr, it) => arr[arr.push(it) - 1];
