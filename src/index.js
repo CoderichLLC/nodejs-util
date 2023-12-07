@@ -1,3 +1,5 @@
+const FS = require('fs');
+const Path = require('path');
 const ChildProcess = require('child_process');
 const ObjectId = require('bson-objectid');
 const set = require('lodash.set');
@@ -13,6 +15,7 @@ exports.push = (arr, it) => arr[arr.push(it) - 1];
 exports.filterBy = (arr, fn) => arr.filter((b, index) => index === arr.findIndex(a => fn(a, b)));
 exports.ensureArray = a => (Array.isArray(a) ? a : [a].filter(el => el !== undefined));
 exports.timeout = ms => new Promise((resolve) => { setTimeout(resolve, ms); });
+exports.ucFirst = string => string.charAt(0).toUpperCase() + string.slice(1);
 
 exports.filterRe = (arr, fn) => {
   const map = new Map();
@@ -126,4 +129,23 @@ exports.pipeline = (thunks, startValue) => {
       return Promise.resolve(thunk($value));
     });
   }, Promise.resolve(startValue));
+};
+
+exports.requireDir = (dir) => {
+  const data = {};
+  dir = Path.resolve(dir);
+
+  FS.readdirSync(dir).forEach((filename) => {
+    const { name } = Path.parse(filename);
+    const path = `${dir}/${filename}`;
+    const stat = FS.statSync(path);
+
+    if (stat && stat.isDirectory()) {
+      data[name] = exports.requireDir(path);
+    } else if (path.includes('.js')) {
+      data[name] = require(path); // eslint-disable-line import/no-dynamic-require, global-require
+    }
+  });
+
+  return data;
 };
