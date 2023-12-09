@@ -40,7 +40,7 @@ exports.flatten = (mixed, options = {}) => {
     const type = Object.prototype.toString.call(data);
     const types = options.safe ? ['[object Object]'] : ['[object Object]', '[object Array]'];
 
-    if (depth <= maxDepth && types.includes(type) && !ObjectId.isValid(data)) {
+    if (depth <= maxDepth && types.includes(type) && Object.keys(data).length && !ObjectId.isValid(data)) {
       return Object.entries(data).reduce((o, [key, value]) => {
         const $key = options.strict && key.split('.').length > 1 ? `['${key}']` : key;
         return flatten(value, o, path.concat($key), depth + 1);
