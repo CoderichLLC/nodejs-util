@@ -16,7 +16,7 @@ exports.filterBy = (arr, fn) => arr.filter((b, index) => index === arr.findIndex
 exports.ensureArray = a => (Array.isArray(a) ? a : [a].filter(el => el !== undefined));
 exports.timeout = ms => new Promise((resolve) => { setTimeout(resolve, ms); });
 exports.ucFirst = string => string.charAt(0).toUpperCase() + string.slice(1);
-exports.isPlainArrayOrObject = obj => Array.isArray(obj) || exports.isPlainObject(obj);
+exports.isPlainObjectOrArray = obj => Array.isArray(obj) || exports.isPlainObject(obj);
 
 exports.isPlainObject = (obj) => {
   if (obj == null) return false;
@@ -42,10 +42,10 @@ exports.shellCommand = (cmd, ...args) => {
 
 exports.flatten = (mixed, options = {}) => {
   const maxDepth = options.depth ?? Infinity;
-  const typeFn = options.safe ? exports.isPlainObject : exports.isPlainArrayOrObject;
+  const typeFn = options.safe ? exports.isPlainObject : exports.isPlainObjectOrArray;
 
   return exports.map(mixed, el => (function flatten(data, obj = {}, path = [], depth = 0) {
-    if (depth <= maxDepth && Object.keys(data).length && typeFn(data)) {
+    if (depth <= maxDepth && typeFn(data) && Object.keys(data).length) {
       return Object.entries(data).reduce((o, [key, value]) => {
         const $key = options.strict && key.split('.').length > 1 ? `['${key}']` : key;
         return flatten(value, o, path.concat($key), depth + 1);
@@ -62,7 +62,7 @@ exports.flatten = (mixed, options = {}) => {
 };
 
 exports.unflatten = (data, options = {}) => {
-  const typeFn = options.safe ? exports.isPlainObject : exports.isPlainArrayOrObject;
+  const typeFn = options.safe ? exports.isPlainObject : exports.isPlainObjectOrArray;
 
   return exports.map(data, (el) => {
     return typeFn(data) ? Object.entries(el).reduce((prev, [key, value]) => {
