@@ -16,6 +16,13 @@ exports.filterBy = (arr, fn) => arr.filter((b, index) => index === arr.findIndex
 exports.ensureArray = a => (Array.isArray(a) ? a : [a].filter(el => el !== undefined));
 exports.timeout = ms => new Promise((resolve) => { setTimeout(resolve, ms); });
 exports.ucFirst = string => string.charAt(0).toUpperCase() + string.slice(1);
+exports.isPlainArrayOrObject = obj => Array.isArray(obj) || exports.isPlainObject(obj);
+
+exports.isPlainObject = (obj) => {
+  if (obj == null) return false;
+  const proto = Object.getPrototypeOf(obj);
+  return proto === Object.prototype || proto.toString?.call?.(obj) === '[object Object]';
+};
 
 exports.filterRe = (arr, fn) => {
   const map = new Map();
@@ -35,12 +42,10 @@ exports.shellCommand = (cmd, ...args) => {
 
 exports.flatten = (mixed, options = {}) => {
   const maxDepth = options.depth ?? Infinity;
+  const typeFn = options.safe ? exports.isPlainObject : exports.isPlainArrayOrObject;
 
   return exports.map(mixed, el => (function flatten(data, obj = {}, path = [], depth = 0) {
-    const type = Object.prototype.toString.call(data);
-    const types = options.safe ? ['[object Object]'] : ['[object Object]', '[object Array]'];
-
-    if (depth <= maxDepth && types.includes(type) && Object.keys(data).length && !ObjectId.isValid(data)) {
+    if (depth <= maxDepth && Object.keys(data).length && typeFn(data)) {
       return Object.entries(data).reduce((o, [key, value]) => {
         const $key = options.strict && key.split('.').length > 1 ? `['${key}']` : key;
         return flatten(value, o, path.concat($key), depth + 1);
@@ -57,10 +62,10 @@ exports.flatten = (mixed, options = {}) => {
 };
 
 exports.unflatten = (data, options = {}) => {
+  const typeFn = options.safe ? exports.isPlainObject : exports.isPlainArrayOrObject;
+
   return exports.map(data, (el) => {
-    const type = Object.prototype.toString.call(data);
-    const types = options.safe ? ['[object Object]'] : ['[object Object]', '[object Array]'];
-    return types.includes(type) ? Object.entries(el).reduce((prev, [key, value]) => {
+    return typeFn(data) ? Object.entries(el).reduce((prev, [key, value]) => {
       return set(prev, key, value);
     }, {}) : el;
   });

@@ -128,4 +128,14 @@ describe('utils', () => {
       value => Util.timeout(100).then(() => value + 3),
     ])).toEqual(303);
   });
+
+  test('isPlainObject', () => {
+    const obj = {};
+    expect(Util.isPlainObject(obj)).toBe(true);
+    expect(Util.isPlainObject(Object.create(obj))).toBe(true);
+    expect(Util.isPlainObject(null)).toBe(false);
+    expect(Util.isPlainObject(undefined)).toBe(false);
+    expect(Util.isPlainObject(new Date())).toBe(false);
+    expect(Util.isPlainObject(new ObjectId())).toBe(false);
+  });
 });
