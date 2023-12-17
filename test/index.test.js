@@ -127,6 +127,13 @@ describe('utils', () => {
       value => Util.timeout(300).then(() => value * 10),
       value => Util.timeout(100).then(() => value + 3),
     ])).toEqual(303);
+
+    expect(await Util.pipeline([
+      () => 30,
+      value => Util.timeout(300).then(() => value * 10),
+      value => Util.timeout(100).then(() => value + 3),
+      () => undefined,
+    ])).toEqual(303);
   });
 
   test('isPlainObject', () => {
