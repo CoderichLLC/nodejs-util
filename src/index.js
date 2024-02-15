@@ -19,7 +19,7 @@ exports.ucFirst = string => string.charAt(0).toUpperCase() + string.slice(1);
 exports.isPlainObjectOrArray = obj => Array.isArray(obj) || exports.isPlainObject(obj);
 
 exports.isPlainObject = (obj) => {
-  if (obj == null) return false;
+  if (obj == null || Array.isArray(obj)) return false;
   const proto = Object.getPrototypeOf(obj);
   return proto === Object.prototype || proto.toString?.call?.(obj) === '[object Object]';
 };

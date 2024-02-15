@@ -138,11 +138,14 @@ describe('utils', () => {
 
   test('isPlainObject', () => {
     const obj = {};
+    expect(Util.isPlainObject({})).toBe(true);
     expect(Util.isPlainObject(obj)).toBe(true);
     expect(Util.isPlainObject(Object.create(obj))).toBe(true);
     expect(Util.isPlainObject(null)).toBe(false);
     expect(Util.isPlainObject(undefined)).toBe(false);
     expect(Util.isPlainObject(new Date())).toBe(false);
     expect(Util.isPlainObject(new ObjectId())).toBe(false);
+    expect(Util.isPlainObject([])).toBe(false);
+    expect(Util.isPlainObject([obj])).toBe(false);
   });
 });
