@@ -21,7 +21,7 @@ exports.isPlainObjectOrArray = obj => Array.isArray(obj) || exports.isPlainObjec
 exports.isPlainObject = (obj) => {
   if (obj == null || Array.isArray(obj)) return false;
   const proto = Object.getPrototypeOf(obj);
-  return proto === Object.prototype || proto.toString?.call?.(obj) === '[object Object]';
+  return proto === Object.prototype || proto?.toString?.call?.(obj) === '[object Object]';
 };
 
 exports.filterRe = (arr, fn) => {
