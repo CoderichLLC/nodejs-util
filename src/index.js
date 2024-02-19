@@ -9,13 +9,14 @@ exports.set = set;
 exports.isEqual = isEqual;
 exports.ObjectId = ObjectId;
 
+exports.push = (arr, it) => arr[arr.push(it) - 1];
 exports.uvl = (...values) => values.reduce((prev, value) => (prev === undefined ? value : prev), undefined);
 exports.nvl = (...values) => values.reduce((prev, value) => (prev === null ? value : prev), null);
-exports.push = (arr, it) => arr[arr.push(it) - 1];
 exports.filterBy = (arr, fn) => arr.filter((b, index) => index === arr.findIndex(a => fn(a, b)));
 exports.ensureArray = a => (Array.isArray(a) ? a : [a].filter(el => el !== undefined));
 exports.timeout = ms => new Promise((resolve) => { setTimeout(resolve, ms); });
 exports.ucFirst = string => string.charAt(0).toUpperCase() + string.slice(1);
+exports.isScalarValue = value => value !== Object(value);
 exports.isPlainObjectOrArray = obj => Array.isArray(obj) || exports.isPlainObject(obj);
 
 exports.isPlainObject = (obj) => {
