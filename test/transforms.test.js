@@ -41,11 +41,29 @@ describe('Util.transforms', () => {
     expect(Util.pathmap('', false)).toBe(false);
     expect(Util.pathmap('a.b.c', { name: 'rich' })).toEqual({ name: 'rich' });
     expect(Util.pathmap('name', { name: 'a' }, v => `${v}${v}`)).toEqual({ name: 'aa' });
-    expect(Util.pathmap('arr', [{ arr: ['a', 'b'] }, { arr: ['c', 'd'] }], v => `${v}${v}`)).toEqual([{ arr: ['aa', 'bb'] }, { arr: ['cc', 'dd'] }]);
+    expect(Util.pathmap('arr', [{ arr: ['a', 'b'] }, { arr: ['c', 'd'] }], a => a.join(','))).toEqual([{ arr: 'a,b' }, { arr: 'c,d' }]);
     expect(Util.pathmap('edges.1.name', { edges: [{ name: 'a' }, { name: 'b' }] }, v => `${v}${v}`)).toEqual({ edges: [{ name: 'a' }, { name: 'bb' }] });
     expect(Util.pathmap('edges.2.name', { edges: [{ name: 'a' }, { name: 'b' }] }, v => `${v}${v}`)).toEqual({ edges: [{ name: 'a' }, { name: 'b' }] });
-    expect(Util.pathmap('edges.arr', { edges: [{ arr: ['a', 'b', 'c'] }, { arr: ['d', 'e', 'f'] }] }, v => `${v}${v}`)).toEqual({ edges: [{ arr: ['aa', 'bb', 'cc'] }, { arr: ['dd', 'ee', 'ff'] }] });
-    expect(Util.pathmap('edges.arr', [{ edges: [{ arr: ['a', 'b', 'c'] }, { arr: ['d', 'e', 'f'] }] }], v => `${v}${v}`)).toEqual([{ edges: [{ arr: ['aa', 'bb', 'cc'] }, { arr: ['dd', 'ee', 'ff'] }] }]);
+    expect(Util.pathmap('edges.arr', { edges: [{ arr: ['a', 'b', 'c'] }, { arr: ['d', 'e', 'f'] }] }, a => a.join(','))).toEqual({ edges: [{ arr: 'a,b,c' }, { arr: 'd,e,f' }] });
+    expect(Util.pathmap('edges.arr', [{ edges: [{ arr: ['a', 'b', 'c'] }, { arr: ['d', 'e', 'f'] }] }], a => a.join(','))).toEqual([{ edges: [{ arr: 'a,b,c' }, { arr: 'd,e,f' }] }]);
+
+    const result = Util.pathmap('result1.edges.node.location.address.state', {
+      result1: [{
+        edges: [{
+          node: {
+            id: 1,
+            location: {
+              address: {
+                city: 'city1',
+                state: 'state1',
+                zipcode: 'zipcode1',
+              },
+            },
+          },
+        }],
+      }],
+    }, v => v.toUpperCase());
+    expect(result.result1[0].edges[0].node.location.address.state).toBe('STATE1');
 
     expect(Util.pathmap('edges.node.name', {
       edges: [

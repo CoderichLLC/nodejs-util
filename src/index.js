@@ -116,7 +116,7 @@ exports.pathmap = (paths, mixed, fn) => {
       } else if (isProperty) {
         parent[key] = fn(parent[key]);
       } else if (Array.isArray(parent)) {
-        parent.forEach(el => (el[key] = exports.map(el[key], v => fn(v))));
+        parent.forEach(el => (el[key] = fn(el[key])));
       }
     }
   };
