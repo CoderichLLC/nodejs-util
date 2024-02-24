@@ -101,6 +101,30 @@ exports.map = (mixed, fn) => {
   return isArray ? results : results[0];
 };
 
+exports.pathmap = (paths, mixed, fn) => {
+  if (!exports.isPlainObjectOrArray(mixed)) return mixed;
+  if (typeof paths === 'string') paths = paths.split('.');
+
+  const traverse = (keys, parent) => {
+    if (exports.isPlainObjectOrArray(parent)) {
+      const key = keys.shift();
+      const isProperty = Object.prototype.hasOwnProperty.call(parent, key);
+
+      if (keys.length) {
+        if (isProperty) traverse(keys, parent[key]);
+        else if (Array.isArray(parent)) parent.forEach(el => traverse([key, ...keys], el));
+      } else if (isProperty) {
+        parent[key] = fn(parent[key]);
+      } else if (Array.isArray(parent)) {
+        parent.forEach(el => (el[key] = exports.map(el[key], v => fn(v))));
+      }
+    }
+  };
+
+  traverse(paths, mixed);
+  return mixed;
+};
+
 exports.mapPromise = (mixed, fn) => {
   const map = exports.map(mixed, fn);
   return Array.isArray(map) ? Promise.all(map) : Promise.resolve(map);
