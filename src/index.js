@@ -114,9 +114,9 @@ exports.pathmap = (paths, mixed, fn) => {
         if (isProperty) traverse(keys, parent[key]);
         else if (Array.isArray(parent)) parent.forEach(el => traverse([key, ...keys], el));
       } else if (isProperty) {
-        parent[key] = fn(parent[key]);
+        parent[key] = fn(parent[key], { key, parent });
       } else if (Array.isArray(parent)) {
-        parent.forEach(el => (el[key] = fn(el[key])));
+        parent.forEach(el => (el[key] = fn(el[key], { key, parent: el })));
       }
     }
   };
