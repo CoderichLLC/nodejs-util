@@ -9,15 +9,24 @@ exports.set = set;
 exports.isEqual = isEqual;
 exports.ObjectId = ObjectId;
 
-exports.push = (arr, it) => arr[arr.push(it) - 1];
+exports.push = (arr, el) => arr[arr.push(el) - 1];
 exports.uvl = (...values) => values.reduce((prev, value) => (prev === undefined ? value : prev), undefined);
 exports.nvl = (...values) => values.reduce((prev, value) => (prev === null ? value : prev), null);
+exports.pairs = (...values) => values.flat().reduce((prev, curr, i, arr) => (i % 2 === 0 ? prev.concat([arr.slice(i, i + 2)]) : prev), []);
 exports.filterBy = (arr, fn) => arr.filter((b, index) => index === arr.findIndex(a => fn(a, b)));
 exports.ensureArray = a => (Array.isArray(a) ? a : [a].filter(el => el !== undefined));
 exports.timeout = ms => new Promise((resolve) => { setTimeout(resolve, ms); });
 exports.ucFirst = string => string.charAt(0).toUpperCase() + string.slice(1);
 exports.isScalarValue = value => value !== Object(value);
 exports.isPlainObjectOrArray = obj => Array.isArray(obj) || exports.isPlainObject(obj);
+
+exports.findAndReplace = (arr, fn, ...items) => {
+  return arr.find((el, i, ...rest) => {
+    const res = fn(el, i, ...rest);
+    if (res) arr.splice(i, 1, ...items);
+    return res;
+  });
+};
 
 exports.isPlainObject = (obj) => {
   if (obj == null || Array.isArray(obj)) return false;
@@ -101,27 +110,40 @@ exports.map = (mixed, fn) => {
   return isArray ? results : results[0];
 };
 
-exports.pathmap = (paths, mixed, fn) => {
+exports.pathmap = (paths, mixed, fn = v => v) => {
   if (!exports.isPlainObjectOrArray(mixed)) return mixed;
   if (typeof paths === 'string') paths = paths.split('.');
+  paths = paths.filter(Boolean);
 
-  const traverse = (keys, parent) => {
+  const traverse = (keys, parent, path = [], jsonpath = []) => {
     if (exports.isPlainObjectOrArray(parent)) {
       const key = keys.shift();
       const isProperty = Object.prototype.hasOwnProperty.call(parent, key);
 
+      // When there are more keys to go; the best we can do is traverse what's there
+      // Otherwise, when at the last key, we can callback and assign response value
       if (keys.length) {
-        if (isProperty) traverse(keys, parent[key]);
-        else if (Array.isArray(parent)) parent.forEach(el => traverse([key, ...keys], el));
-      } else if (isProperty) {
-        parent[key] = fn(parent[key], { key, parent });
+        if (isProperty) {
+          traverse(keys, parent[key], path.concat(key), jsonpath.concat(key));
+        } else if (Array.isArray(parent)) {
+          jsonpath.push('[*]');
+          parent.forEach((el, i) => traverse([key, ...keys], el, path.concat(i), jsonpath));
+        }
       } else if (Array.isArray(parent)) {
-        parent.forEach(el => (el[key] = fn(el[key], { key, parent: el })));
+        jsonpath.push('[*]');
+        parent.forEach((el, i) => (el[key] = fn(el[key], { key, parent: el, path: path.concat(i, key), jsonpath: jsonpath.concat(key) })));
+      } else {
+        parent[key] = fn(parent[key], { key, parent, path: path.concat(key), jsonpath: jsonpath.concat(key) });
       }
     }
   };
 
-  traverse(paths, mixed);
+  if (paths.length) {
+    traverse(paths, mixed);
+  } else {
+    mixed = fn(mixed, { key: '', parent: mixed, path: [], jsonpath: [] });
+  }
+
   return mixed;
 };
 

@@ -39,6 +39,11 @@ describe('Util.transforms', () => {
     expect(Util.pathmap('')).toBeUndefined();
     expect(Util.pathmap('', null)).toBeNull();
     expect(Util.pathmap('', false)).toBe(false);
+    expect(Util.pathmap('', { a: 'a' })).toEqual({ a: 'a' });
+    expect(Util.pathmap(undefined, false)).toBe(false);
+    expect(Util.pathmap('b', { a: 'a' })).toEqual({ a: 'a' });
+    expect(Util.pathmap('bool', { bool: true })).toEqual({ bool: true });
+    expect(Util.pathmap('bool', { bool: false })).toEqual({ bool: false });
     expect(Util.pathmap('a.b.c', { name: 'rich' })).toEqual({ name: 'rich' });
     expect(Util.pathmap('name', { name: 'a' }, v => `${v}${v}`)).toEqual({ name: 'aa' });
     expect(Util.pathmap('arr', [{ arr: ['a', 'b'] }, { arr: ['c', 'd'] }], a => a.join(','))).toEqual([{ arr: 'a,b' }, { arr: 'c,d' }]);
