@@ -3,9 +3,9 @@ const Path = require('path');
 const ChildProcess = require('child_process');
 const ObjectId = require('bson-objectid');
 const isEqual = require('lodash.isequal');
-const { setProperty } = require('dot-prop');
+const { set } = require('dot-prop');
 
-exports.set = setProperty;
+exports.set = set;
 exports.isEqual = isEqual;
 exports.ObjectId = ObjectId;
 
