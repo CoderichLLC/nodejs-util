@@ -11,15 +11,15 @@
   ],
   "scripts": {
     "test": "jest --config=jest.config.js",
-    "lint": "eslint --config=.eslintrc ./",
+    "lint": "eslint ./",
     "dev": "coderich-dev"
   },
   "dependencies": {
     "bson-objectid": "2.0.4",
-    "lodash.isequal": "4.5.0",
-    "lodash.set": "4.3.2"
+    "dot-prop": "8.0.2",
+    "lodash.isequal": "4.5.0"
   },
   "devDependencies": {
-    "@coderich/dev": "0.1.0"
+    "@coderich/dev": "0.2.0"
   }
 }

@@ -2,10 +2,10 @@ const FS = require('fs');
 const Path = require('path');
 const ChildProcess = require('child_process');
 const ObjectId = require('bson-objectid');
-const set = require('lodash.set');
 const isEqual = require('lodash.isequal');
+const { setProperty } = require('dot-prop');
 
-exports.set = set;
+exports.set = setProperty;
 exports.isEqual = isEqual;
 exports.ObjectId = ObjectId;
 
@@ -57,7 +57,7 @@ exports.flatten = (mixed, options = {}) => {
   return exports.map(mixed, el => (function flatten(data, obj = {}, path = [], depth = 0) {
     if (depth <= maxDepth && typeFn(data) && Object.keys(data).length) {
       return Object.entries(data).reduce((o, [key, value]) => {
-        const $key = options.strict && key.split('.').length > 1 ? `['${key}']` : key;
+        const $key = options.strict ? key.replaceAll('.', '\\.') : key;
         return flatten(value, o, path.concat($key), depth + 1);
       }, obj);
     }
@@ -76,7 +76,7 @@ exports.unflatten = (data, options = {}) => {
 
   return exports.map(data, (el) => {
     return typeFn(data) ? Object.entries(el).reduce((prev, [key, value]) => {
-      return set(prev, key, value);
+      return exports.set(prev, key, value);
     }, {}) : el;
   });
 };
