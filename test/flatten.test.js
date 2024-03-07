@@ -29,6 +29,27 @@ describe('Util.flatten', () => {
     expect(Util.unflatten(['a', 'b', 'c'], { safe: true })).toEqual(['a', 'b', 'c']);
     expect(Util.unflatten({ 'a.b.c': 'd' })).toEqual({ a: { b: { c: 'd' } } });
     expect(Util.unflatten({ a: { b: { c: 'd' } } })).toEqual({ a: { b: { c: 'd' } } });
+    expect(Util.unflatten({ role: { 'detail.scope': 'r' } })).toEqual({ role: { detail: { scope: 'r' } } });
+    expect(Util.unflatten({
+      role: {
+        'detail.crud': 'c',
+        'detail.scope': 'r',
+        'detail.detail': {
+          nested: { prop: 'prop' },
+          'nested.attribute': 'attr',
+        },
+      },
+    })).toEqual({
+      role: {
+        detail: {
+          crud: 'c',
+          scope: 'r',
+          detail: {
+            nested: { prop: 'prop', attribute: 'attr' },
+          },
+        },
+      },
+    });
   });
 
   test('preserve nested keys', () => {

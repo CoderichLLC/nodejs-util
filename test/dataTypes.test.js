@@ -63,5 +63,9 @@ describe('Util.isDataType', () => {
     expect(Util.isScalarValue('hello world')).toBe(true);
     expect(Util.isPlainObject('hello world')).toBe(false);
     expect(Util.isPlainObjectOrArray('hello world')).toBe(false);
+
+    expect(Util.isScalarValue({ role: { 'detail.scope': 'r' } })).toBe(false);
+    expect(Util.isPlainObject({ role: { 'detail.scope': 'r' } })).toBe(true);
+    expect(Util.isPlainObjectOrArray({ role: { 'detail.scope': 'r' } })).toBe(true);
   });
 });

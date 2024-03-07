@@ -75,7 +75,7 @@ exports.unflatten = (data, options = {}) => {
   const typeFn = options.safe ? exports.isPlainObject : exports.isPlainObjectOrArray;
 
   return exports.map(data, (el) => {
-    return typeFn(data) ? Object.entries(el).reduce((prev, [key, value]) => {
+    return typeFn(data) ? Object.entries(exports.flatten(el, options)).reduce((prev, [key, value]) => {
       return exports.set(prev, key, value);
     }, {}) : el;
   });
