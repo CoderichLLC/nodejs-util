@@ -10,8 +10,8 @@ exports.isEqual = isEqual;
 exports.ObjectId = ObjectId;
 
 exports.push = (arr, el) => arr[arr.push(el) - 1];
-exports.uvl = (...values) => values.reduce((prev, value) => (prev === undefined ? value : prev), undefined);
-exports.nvl = (...values) => values.reduce((prev, value) => (prev === null ? value : prev), null);
+exports.uvl = (...values) => values.reduce((prev, value) => (prev === undefined ? value : prev));
+exports.nvl = (...values) => values.reduce((prev, value) => (prev === null ? value : prev));
 exports.pairs = (...values) => values.flat().reduce((prev, curr, i, arr) => (i % 2 === 0 ? prev.concat([arr.slice(i, i + 2)]) : prev), []);
 exports.filterBy = (arr, fn) => arr.filter((b, index) => index === arr.findIndex(a => fn(a, b)));
 exports.ensureArray = a => (Array.isArray(a) ? a : [a].filter(el => el !== undefined));
@@ -200,4 +200,12 @@ exports.requireDir = (dir) => {
   });
 
   return data;
+};
+
+exports.parseRegExp = (mixed) => {
+  if (mixed instanceof RegExp) return mixed;
+  const matches = mixed.match(/^\/?(.*?)\/?([gimy]*)$/);
+  if (!matches) throw new Error(`Invalid regular expression format: ${mixed}`);
+  const [, pattern, flags] = matches;
+  return new RegExp(pattern, flags);
 };

@@ -1,6 +1,15 @@
 const Util = require('../src/index');
 
 describe('Util.adhoc', () => {
+  test('nvl', () => {
+    expect(Util.nvl(undefined)).toBeUndefined();
+  });
+
+  test('uvl', () => {
+    expect(Util.uvl(undefined)).toBeUndefined();
+    expect(Util.uvl(undefined, [])).toEqual([]);
+  });
+
   test('pairs', () => {
     expect(Util.pairs([])).toEqual([]);
     expect(Util.pairs(['a'])).toEqual([['a']]);
