@@ -1,4 +1,4 @@
-const ObjectId = require('bson-objectid');
+const { ObjectId } = require('bson');
 const Util = require('../src/index');
 
 describe('Util.flatten', () => {
@@ -50,6 +50,13 @@ describe('Util.flatten', () => {
         },
       },
     });
+  });
+
+  test('creates new object', () => {
+    const input = { a: 'a' };
+    const $input = Util.unflatten(input);
+    expect(input).not.toBe($input);
+    expect(input).toEqual($input);
   });
 
   test('preserve nested keys', () => {

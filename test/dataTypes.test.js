@@ -1,4 +1,4 @@
-const ObjectId = require('bson-objectid');
+const { ObjectId } = require('bson');
 const Util = require('../src/index');
 
 describe('Util.isDataType', () => {

@@ -1,8 +1,8 @@
 const FS = require('fs');
 const Path = require('path');
 const ChildProcess = require('child_process');
-const ObjectId = require('bson-objectid');
 const isEqual = require('lodash.isequal');
+const { ObjectId } = require('bson');
 const { set } = require('dot-prop');
 
 exports.set = set;
