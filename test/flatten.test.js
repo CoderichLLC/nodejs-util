@@ -15,8 +15,8 @@ describe('Util.flatten', () => {
     expect(Util.flatten(['a', 'b', 'c'])).toEqual(['a', 'b', 'c']);
     expect(Util.flatten(['a', 'b', 'c'], { safe: true })).toEqual(['a', 'b', 'c']);
     expect(Util.flatten({ a: { b: 'c' } })).toEqual({ 'a.b': 'c' });
-    // expect(Util.flatten({ a: { b: 1, 'nested.attribute': 2 } }, { strict: true })).toEqual({ 'a.b': 1, "a.['nested.attribute']": 2 }); // Lodash.set
-    expect(Util.flatten({ a: { b: 1, 'nested.attribute': 2 } }, { strict: true })).toEqual({ 'a.b': 1, 'a.nested\\.attribute': 2 }); // dot-prop setProperty
+    expect(Util.flatten({ a: { b: 1, 'nested.attribute': 2 } }, { strict: true })).toEqual({ 'a.b': 1, "a.['nested.attribute']": 2 }); // Lodash.set
+    // expect(Util.flatten({ a: { b: 1, 'nested.attribute': 2 } }, { strict: true })).toEqual({ 'a.b': 1, 'a.nested\\.attribute': 2 }); // dot-prop setProperty
     expect(Util.flatten({ a: { b: 1, c: [4, 5, 6] } })).toEqual({ 'a.b': 1, 'a.c.0': 4, 'a.c.1': 5, 'a.c.2': 6 });
     expect(Util.flatten({ a: { b: 1, c: [4, 5, 6] } }, { safe: true })).toEqual({ 'a.b': 1, 'a.c': [4, 5, 6] });
   });
@@ -69,5 +69,14 @@ describe('Util.flatten', () => {
     const flat = Util.flatten(obj, { depth: 1 });
     expect(flat).toEqual({ 'a.b': { bb: 'bb' }, 'a.c': { cc: 'cc' } });
     expect(Util.unflatten(flat)).toEqual(obj);
+  });
+
+  test('nested array handling', () => {
+    const obj = { a: { b: 1, arr: ['a', 'b', 'c'] } };
+    const flatObj = Util.flatten(obj);
+    const unflatObj = Util.unflatten(flatObj);
+    expect(unflatObj).toEqual(obj);
+    // console.log(JSON.stringify(unflatObj, null, 2));
+    // expect(Util.unflatten(Util.flatten(obj))).toEqual(obj);
   });
 });
