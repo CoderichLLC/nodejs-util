@@ -4,6 +4,7 @@ const Util = require('../src/index');
 describe('Util.isDataType', () => {
   test('data types', () => {
     const obj = {};
+    const oid = new ObjectId();
     expect(Util.isScalarValue({})).toBe(false);
     expect(Util.isPlainObject({})).toBe(true);
     expect(Util.isPlainObjectOrArray({})).toBe(true);
@@ -16,13 +17,17 @@ describe('Util.isDataType', () => {
     expect(Util.isPlainObject(Object.create(obj))).toBe(true);
     expect(Util.isPlainObjectOrArray(Object.create(obj))).toBe(true);
 
+    expect(Util.isScalarValue(Object.create(null))).toBe(false);
+    expect(Util.isPlainObject(Object.create(null))).toBe(true);
+    expect(Util.isPlainObjectOrArray(Object.create(null))).toBe(true);
+
     expect(Util.isScalarValue(new Date())).toBe(false);
     expect(Util.isPlainObject(new Date())).toBe(false);
     expect(Util.isPlainObjectOrArray(new Date())).toBe(false);
 
-    expect(Util.isScalarValue(new ObjectId())).toBe(false);
-    expect(Util.isPlainObject(new ObjectId())).toBe(false);
-    expect(Util.isPlainObjectOrArray(new ObjectId())).toBe(false);
+    expect(Util.isScalarValue(oid)).toBe(false);
+    expect(Util.isPlainObject(oid)).toBe(false);
+    expect(Util.isPlainObjectOrArray(oid)).toBe(false);
 
     expect(Util.isScalarValue([])).toBe(false);
     expect(Util.isPlainObject([])).toBe(false);
