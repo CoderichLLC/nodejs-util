@@ -120,7 +120,7 @@ exports.dirmap = (dir, fn = v => v) => {
     const stat = FS.statSync(path);
 
     if (stat && stat.isDirectory()) {
-      data[name] = exports.dirmap(path);
+      data[name] = exports.dirmap(path, fn);
     } else {
       data[name] = fn(path);
     }
