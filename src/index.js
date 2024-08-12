@@ -110,6 +110,25 @@ exports.map = (mixed, fn) => {
   return isArray ? results : results[0];
 };
 
+exports.dirmap = (dir, fn = v => v) => {
+  const data = {};
+  dir = Path.resolve(dir);
+
+  FS.readdirSync(dir).forEach((filename) => {
+    const { name } = Path.parse(filename);
+    const path = `${dir}/${filename}`;
+    const stat = FS.statSync(path);
+
+    if (stat && stat.isDirectory()) {
+      data[name] = exports.dirmap(path);
+    } else if (path.includes('.js')) {
+      data[name] = fn(path);
+    }
+  });
+
+  return data;
+};
+
 exports.pathmap = (paths, mixed, fn = v => v) => {
   if (!exports.isPlainObjectOrArray(mixed)) return mixed;
   if (typeof paths === 'string') paths = paths.split('.');
@@ -184,22 +203,9 @@ exports.pipeline = (thunks, startValue) => {
 };
 
 exports.requireDir = (dir) => {
-  const data = {};
-  dir = Path.resolve(dir);
-
-  FS.readdirSync(dir).forEach((filename) => {
-    const { name } = Path.parse(filename);
-    const path = `${dir}/${filename}`;
-    const stat = FS.statSync(path);
-
-    if (stat && stat.isDirectory()) {
-      data[name] = exports.requireDir(path);
-    } else if (path.includes('.js')) {
-      data[name] = require(path); // eslint-disable-line import/no-dynamic-require, global-require
-    }
+  return exports.dirmap(dir, (path) => {
+    return path.includes('.js') ? require(path) : path; // eslint-disable-line import/no-dynamic-require, global-require
   });
-
-  return data;
 };
 
 exports.parseRegExp = (mixed) => {
