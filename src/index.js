@@ -121,7 +121,7 @@ exports.dirmap = (dir, fn = v => v) => {
 
     if (stat && stat.isDirectory()) {
       data[name] = exports.dirmap(path);
-    } else if (path.includes('.js')) {
+    } else {
       data[name] = fn(path);
     }
   });
