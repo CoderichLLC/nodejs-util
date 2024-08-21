@@ -24,4 +24,18 @@ describe('Util.adhoc', () => {
     expect(Util.ensureArray(null)).toEqual([null]);
     expect(Util.ensureArray(false)).toEqual([false]);
   });
+
+  test('dirmap', () => {
+    expect(Util.dirmap(__dirname, ({ stats }) => {
+      const type = stats.isDirectory() ? 'directory' : 'file';
+      return { type };
+    })).toMatchObject({
+      dirmap: {
+        type: 'directory',
+      },
+      'adhoc.test': {
+        type: 'file',
+      },
+    });
+  });
 });

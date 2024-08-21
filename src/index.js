@@ -110,19 +110,19 @@ exports.map = (mixed, fn) => {
   return isArray ? results : results[0];
 };
 
-exports.dirmap = (dir, fn = v => v) => {
+exports.dirmap = (dir, fn) => {
   const data = {};
   dir = Path.resolve(dir);
 
   FS.readdirSync(dir).forEach((filename) => {
     const { name } = Path.parse(filename);
     const path = `${dir}/${filename}`;
-    const stat = FS.statSync(path);
+    const stats = FS.statSync(path);
 
-    if (stat && stat.isDirectory()) {
-      data[name] = exports.dirmap(path, fn);
-    } else {
-      data[name] = fn(path);
+    if (stats?.isDirectory()) {
+      data[name] = { ...fn?.({ stats, path }), ...exports.dirmap(path, fn) };
+    } else if (fn) {
+      data[name] = fn({ stats, path });
     }
   });
 
