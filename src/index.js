@@ -51,19 +51,20 @@ exports.shellCommand = (cmd, ...args) => {
 
 exports.flatten = (mixed, options = {}) => {
   const maxDepth = options.depth ?? Infinity;
+  const ignorePaths = options.ignorePaths || [];
   const typeFn = options.safe ? exports.isPlainObject : exports.isPlainObjectOrArray;
 
-  return exports.map(mixed, el => (function flatten(data, obj = {}, path = [], depth = 0) {
-    if (depth <= maxDepth && typeFn(data) && Object.keys(data).length) {
+  return exports.map(mixed, el => (function flatten(data, obj = {}, path = '', depth = 0) {
+    if (depth <= maxDepth && typeFn(data) && Object.keys(data).length && !ignorePaths.some(ip => path.startsWith(ip))) {
       return Object.entries(data).reduce((o, [key, value]) => {
         const $key = options.strict && key.split('.').length > 1 ? `['${key}']` : key; // Use for lodash
         // const $key = options.strict ? key.replaceAll('.', '\\.') : key; // Use for dot-prop
-        return flatten(value, o, path.concat($key), depth + 1);
+        return flatten(value, o, path.concat($key, '.'), depth + 1);
       }, obj);
     }
 
     if (path.length) {
-      obj[path.join('.')] = data;
+      obj[path.slice(0, -1)] = data;
       return obj;
     }
 

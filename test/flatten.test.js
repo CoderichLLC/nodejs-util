@@ -21,6 +21,26 @@ describe('Util.flatten', () => {
     expect(Util.flatten({ a: { b: 1, c: [4, 5, 6] } }, { safe: true })).toEqual({ 'a.b': 1, 'a.c': [4, 5, 6] });
   });
 
+  test('(un)flatten (w/ignorePaths)', () => {
+    const obj = {
+      name: { en: 'name' },
+      nested: { name: { en: 'name', es: 'nombre' }, description: { en: 'desc', es: 'desco' } },
+      array: [{ name: { en: 'name' } }],
+    };
+
+    const $obj = Util.flatten(obj, { safe: true, ignorePaths: ['name', 'nested.description'] });
+
+    expect($obj).toEqual({
+      name: { en: 'name' },
+      'nested.name.en': 'name',
+      'nested.name.es': 'nombre',
+      'nested.description': { en: 'desc', es: 'desco' },
+      array: [{ name: { en: 'name' } }],
+    });
+
+    expect(Util.unflatten($obj)).toEqual(obj);
+  });
+
   test('unflatten', () => {
     const oid = new ObjectId();
     expect(Util.unflatten([])).toEqual([]);
@@ -76,7 +96,5 @@ describe('Util.flatten', () => {
     const flatObj = Util.flatten(obj);
     const unflatObj = Util.unflatten(flatObj);
     expect(unflatObj).toEqual(obj);
-    // console.log(JSON.stringify(unflatObj, null, 2));
-    // expect(Util.unflatten(Util.flatten(obj))).toEqual(obj);
   });
 });
