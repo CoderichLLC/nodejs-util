@@ -167,6 +167,13 @@ exports.pathmap = (paths, mixed, fn = v => v) => {
   return mixed;
 };
 
+exports.traverse = (mixed, fn, info) => {
+  exports.map(mixed, (data) => {
+    const response = fn(data, info);
+    if (response) exports.traverse(response.value, fn, response.info);
+  });
+};
+
 exports.mapPromise = (mixed, fn) => {
   const map = exports.map(mixed, fn);
   return Array.isArray(map) ? Promise.all(map) : Promise.resolve(map);
