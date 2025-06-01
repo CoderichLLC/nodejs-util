@@ -1,3 +1,4 @@
+const Path = require('path');
 const Util = require('../src/index');
 
 describe('Util.adhoc', () => {
@@ -23,6 +24,10 @@ describe('Util.adhoc', () => {
     expect(Util.ensureArray(undefined)).toEqual([]);
     expect(Util.ensureArray(null)).toEqual([null]);
     expect(Util.ensureArray(false)).toEqual([false]);
+  });
+
+  test('requireDir', () => {
+    expect(Util.requireDir(Path.join(__dirname, 'dirmap'), () => null)).toBeTruthy();
   });
 
   test('dirmap', () => {
