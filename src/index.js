@@ -212,7 +212,7 @@ exports.pipeline = (thunks, startValue) => {
 
 exports.requireDir = (dir) => {
   return exports.dirmap(dir, ({ path }) => {
-    return path.includes('.js') ? require(path) : path; // eslint-disable-line import/no-dynamic-require, global-require
+    return path.includes('.js') ? require(path) : path;
   });
 };
 
