@@ -1,9 +1,10 @@
 const FS = require('fs');
 const Path = require('path');
 const ChildProcess = require('child_process');
-const { set, isEqual } = require('lodash');
+const { get, set, isEqual } = require('lodash');
 const { ObjectId } = require('bson');
 
+exports.get = get;
 exports.set = set;
 exports.isEqual = isEqual;
 exports.ObjectId = ObjectId;
@@ -75,8 +76,36 @@ exports.flatten = (mixed, options = {}) => {
 exports.unflatten = (data, options = {}) => {
   const typeFn = options.safe ? exports.isPlainObject : exports.isPlainObjectOrArray;
 
+  const compactArrays = (prev, key, value) => {
+    const parts = key.split('.');
+    const last = parts.at(-1);
+
+    if (/^\d+$/.test(last)) {
+      // This is a numeric segment — treat parent as a dense array
+      const parentPath = parts.slice(0, -1).join('.');
+
+      // Get existing parent, or create it as an array
+      let parent = parentPath ? exports.get(prev, parentPath) : prev;
+      if (!Array.isArray(parent)) {
+        parent = [];
+        if (parentPath) {
+          exports.set(prev, parentPath, parent);
+        } else {
+          // Top-level array
+          return [value]; // shortcut if root is just an array
+        }
+      }
+
+      parent.push(value);
+      return prev;
+    }
+
+    return exports.set(prev, key, value);
+  };
+
   return exports.map(data, (el) => {
     return typeFn(data) ? Object.entries(exports.flatten(el, options)).reduce((prev, [key, value]) => {
+      if (options.compactArrays) return compactArrays(prev, key, value);
       return exports.set(prev, key, value);
     }, {}) : el;
   });

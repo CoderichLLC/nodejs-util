@@ -84,6 +84,24 @@ describe('Util.flatten', () => {
     expect(Util.unflatten(Util.flatten(obj, { strict: true }))).toEqual(obj);
   });
 
+  test('compactArrays', () => {
+    const obj = { a: { b: 1, arr: ['one', 'two'] } };
+    const flatObj = Util.flatten(obj);
+    delete flatObj['a.arr.0'];
+
+    expect(Object.entries(flatObj)).toEqual([
+      ['a.b', 1],
+      ['a.arr.1', 'two'],
+    ]);
+
+    expect(Util.unflatten(flatObj, { compactArrays: true })).toEqual({
+      a: {
+        b: 1,
+        arr: ['two'],
+      },
+    });
+  });
+
   test('depth 1', () => {
     const obj = { a: { b: { bb: 'bb' }, c: { cc: 'cc' } } };
     const flat = Util.flatten(obj, { depth: 1 });
