@@ -85,7 +85,7 @@ describe('Util.flatten', () => {
   });
 
   test('compactArrays', () => {
-    const obj = { a: { b: 1, arr: ['one', 'two', { arr: ['three', 'four'] }] } }; // Need a nested array of objects
+    const obj = { a: { b: 1, arr: ['one', 'two', { arr: ['three', 'four', 'five'] }] } }; // Need a nested array of objects
     const flatObj = Util.flatten(obj);
     delete flatObj['a.arr.0'];
     delete flatObj['a.arr.2.arr.0'];
@@ -94,12 +94,13 @@ describe('Util.flatten', () => {
       ['a.b', 1],
       ['a.arr.1', 'two'],
       ['a.arr.2.arr.1', 'four'],
+      ['a.arr.2.arr.2', 'five'],
     ]);
 
     expect(Util.unflatten(flatObj, { compactArrays: true })).toEqual({
       a: {
         b: 1,
-        arr: ['two', { arr: ['four'] }],
+        arr: ['two', { arr: ['four', 'five'] }],
       },
     });
   });

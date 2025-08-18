@@ -80,12 +80,16 @@ exports.unflatten = (data, options = {}) => {
     const cache = {};
 
     return typeFn(el) ? Object.entries(exports.flatten(el, options)).reduce((prev, [key, value]) => {
-      const $key = options.compactArrays ? key.replace(/\d+/g, (digit, offset, str) => {
-        const prefix = str.slice(0, offset);
-        cache[prefix] ??= 0;
-        return cache[prefix]++;
-      }) : key;
-      return exports.set(prev, $key, value);
+      if (options.compactArrays) {
+        key = key.replace(/\d+/g, (digit, offset, str) => {
+          const arrPrefix = str.slice(0, offset);
+          cache[arrPrefix] ??= { counter: 0 };
+          cache[arrPrefix][digit] ??= cache[arrPrefix].counter++;
+          return cache[arrPrefix][digit];
+        });
+      }
+
+      return exports.set(prev, key, value);
     }, {}) : el;
   });
 };

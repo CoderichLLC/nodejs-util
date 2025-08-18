@@ -1,3 +1,6 @@
+## 2.1.3
+- Fixed critical bug with unflatten options.compatArrays
+
 ## 2.1.0
 - Added unflatten option.compactArrays
 
