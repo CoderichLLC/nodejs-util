@@ -22,6 +22,10 @@
     "@coderich/dev": "0.6.0",
     "flat": "5.0.2"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/CoderichLLC/nodejs-util.git"
+  },
   "engines": {
     "node": "^22.0.0"
   }
