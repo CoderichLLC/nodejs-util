@@ -81,7 +81,7 @@ exports.unflatten = (data, options = {}) => {
 
     return typeFn(el) ? Object.entries(exports.flatten(el, options)).reduce((prev, [key, value]) => {
       if (options.compactArrays) {
-        key = key.replace(/\d+/g, (digit, offset, str) => {
+        key = key.replace(/(?<=\.)\d+/g, (digit, offset, str) => {
           const arrPrefix = str.slice(0, offset);
           cache[arrPrefix] ??= { counter: 0 };
           cache[arrPrefix][digit] ??= cache[arrPrefix].counter++;
