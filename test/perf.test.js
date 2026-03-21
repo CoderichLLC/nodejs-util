@@ -1,4 +1,4 @@
-const Crypto = require('crypto');
+const Crypto = require('node:crypto');
 const Flat = require('flat');
 const { flatten, unflatten } = require('../src');
 
@@ -34,8 +34,6 @@ describe('performance', () => {
     console.timeEnd('unflatten');
 
     expect(fl).toEqual(flat);
-    expect(unfl).toEqual(unflat);
-    expect(unflat).toEqual(largeObj);
     expect(unfl).toEqual(largeObj);
   });
 });

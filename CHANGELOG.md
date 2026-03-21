@@ -1,3 +1,6 @@
+## 2.2.0
+- Fixed subtle bugs; attempt at performance improvements; added exports.hasOwnKeys
+
 ## 2.1.4
 - Fixed critical bug with unflatten options.compatArrays
 

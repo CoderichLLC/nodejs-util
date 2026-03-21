@@ -1,6 +1,6 @@
-const FS = require('fs');
-const Path = require('path');
-const ChildProcess = require('child_process');
+const FS = require('node:fs');
+const Path = require('node:path');
+const ChildProcess = require('node:child_process');
 const { get, set, isEqual } = require('lodash');
 const { ObjectId } = require('bson');
 
@@ -10,15 +10,22 @@ exports.isEqual = isEqual;
 exports.ObjectId = ObjectId;
 
 exports.push = (arr, el) => arr[arr.push(el) - 1];
-exports.uvl = (...values) => values.reduce((prev, value) => (prev === undefined ? value : prev));
-exports.nvl = (...values) => values.reduce((prev, value) => (prev === null ? value : prev));
-exports.pairs = (...values) => values.flat().reduce((prev, curr, i, arr) => (i % 2 === 0 ? prev.concat([arr.slice(i, i + 2)]) : prev), []);
+exports.uvl = (...values) => values.find(v => v !== undefined);
+exports.nvl = (...values) => values.find(v => v !== null);
+exports.pairs = (...values) => { const arr = values.flat(); const result = []; for (let i = 0; i < arr.length; i += 2) result.push(arr.slice(i, i + 2)); return result; };
 exports.filterBy = (arr, fn) => arr.filter((b, index) => index === arr.findIndex(a => fn(a, b)));
 exports.ensureArray = a => (Array.isArray(a) ? a : [a].filter(el => el !== undefined));
 exports.timeout = ms => new Promise((resolve) => { setTimeout(resolve, ms); });
 exports.ucFirst = string => string.charAt(0).toUpperCase() + string.slice(1);
 exports.isScalarValue = value => value !== Object(value);
 exports.isPlainObjectOrArray = obj => Array.isArray(obj) || exports.isPlainObject(obj);
+
+exports.hasOwnKeys = (obj) => {
+  for (const k in obj) {
+    if (Object.prototype.hasOwnProperty.call(obj, k)) return true;
+  }
+  return false;
+};
 
 exports.findAndReplace = (arr, fn, ...items) => {
   return arr.find((el, i, ...rest) => {
@@ -39,8 +46,9 @@ exports.filterRe = (arr, fn) => {
   const $arr = arr.map(el => fn(el));
   return arr.filter((el, i) => {
     const re = $arr[i];
-    if (!map.has(re.source)) map.set(re.source, $arr.findIndex(({ source }) => source.match(re)));
-    return map.get(re.source) === i;
+    const key = re.toString();
+    if (!map.has(key)) map.set(key, $arr.findIndex(({ source }) => source.match(re)));
+    return map.get(key) === i;
   });
 };
 
@@ -56,7 +64,7 @@ exports.flatten = (mixed, options = {}) => {
   const typeFn = options.safe ? exports.isPlainObject : exports.isPlainObjectOrArray;
 
   return exports.map(mixed, el => (function flatten(data, obj = {}, path = '', depth = 0) {
-    if (depth <= maxDepth && typeFn(data) && Object.keys(data).length && !ignorePaths.some(ip => path.startsWith(ip))) {
+    if (depth <= maxDepth && typeFn(data) && exports.hasOwnKeys(data) && !ignorePaths.some(ip => path.startsWith(ip))) {
       return Object.entries(data).reduce((o, [key, value]) => {
         const $key = options.strict && key.split('.').length > 1 ? `['${key}']` : key; // Use for lodash
         // const $key = options.strict ? key.replaceAll('.', '\\.') : key; // Use for dot-prop
@@ -147,19 +155,20 @@ exports.pathmap = (paths, mixed, fn = v => v) => {
   if (typeof paths === 'string') paths = paths.split('.');
   paths = paths.filter(Boolean);
 
-  const traverse = (keys, parent, path = [], jsonpath = []) => {
+  const traverse = (idx, parent, path = [], jsonpath = []) => {
     if (exports.isPlainObjectOrArray(parent)) {
-      const key = keys.shift();
+      const key = paths[idx];
       const isProperty = Object.prototype.hasOwnProperty.call(parent, key);
+      const hasMore = idx < paths.length - 1;
 
       // When there are more keys to go; the best we can do is traverse what's there
       // Otherwise, when at the last key, we can callback and assign response value
-      if (keys.length) {
+      if (hasMore) {
         if (isProperty) {
-          traverse(keys, parent[key], path.concat(key), jsonpath.concat(key));
+          traverse(idx + 1, parent[key], path.concat(key), jsonpath.concat(key));
         } else if (Array.isArray(parent)) {
           jsonpath.push('[*]');
-          parent.forEach((el, i) => traverse([key, ...keys], el, path.concat(i), jsonpath));
+          parent.forEach((el, i) => traverse(idx, el, path.concat(i), jsonpath));
         }
       } else if (Array.isArray(parent)) {
         jsonpath.push('[*]');
@@ -171,7 +180,7 @@ exports.pathmap = (paths, mixed, fn = v => v) => {
   };
 
   if (paths.length) {
-    traverse(paths, mixed);
+    traverse(0, mixed);
   } else {
     mixed = fn(mixed, { key: '', parent: mixed, path: [], jsonpath: [] });
   }
@@ -224,13 +233,13 @@ exports.pipeline = (thunks, startValue) => {
 
 exports.requireDir = (dir) => {
   return exports.dirmap(dir, ({ path }) => {
-    return path.includes('.js') ? require(path) : path;
+    return path.endsWith('.js') ? require(path) : path;
   });
 };
 
 exports.parseRegExp = (mixed) => {
   if (mixed instanceof RegExp) return mixed;
-  const matches = mixed.match(/^\/?(.*?)\/?([gimy]*)$/);
+  const matches = mixed.match(/^\/?(.*?)\/?([gimsuyv]*)$/);
   if (!matches) throw new Error(`Invalid regular expression format: ${mixed}`);
   const [, pattern, flags] = matches;
   return new RegExp(pattern, flags);
