@@ -1,7 +1,7 @@
 {
   "name": "@coderich/util",
   "main": "src/index.js",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "publishConfig": {
     "access": "public"
   },
