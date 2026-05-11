@@ -19,7 +19,7 @@
     "lodash": "4.18.1"
   },
   "devDependencies": {
-    "@coderich/dev": "0.6.2",
+    "@coderich/dev": "0.6.3",
     "flat": "5.0.2"
   },
   "repository": {
